@@ -1,6 +1,5 @@
 package echo;
 
-import java.util.*;
 import java.io.*;
 import java.net.*;
 
@@ -23,25 +22,35 @@ public class Server {
     }
 
     public void listen() {
-        while (true) {
-            try {
-                Socket socket = mySocket.accept();
-                makeHandler(socket);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        System.out.println("server address: " + 
+            mySocket.getInetAddress());
+        try { 
+            while (true) {
+                System.out.println("Server listening at port " + myPort);
+                Socket socket = mySocket.accept(); //accept a connection
+                RequestHandler handler = makeHandler(socket); //create a connection
+                if(handler == null) continue;
+                Thread slave = new Thread(handler);
+                slave.start(); // start handler
+            } // while
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
 
-			// accept a connection CHECK
-			// make handler CHECL
-			// start handler
-		} // while
-	}
-
-	public RequestHandler makeHandler(Socket s) {
+    public RequestHandler makeHandler(Socket s) {
+        RequestHandler handler = null;
+        try {
+            handler = (RequestHandler) handlerType.newInstance();
+            handler.setSocket(s);
+        } catch(Exception e) {
+            System.err.println(e.getMessage());
+        }
 		// handler = a new instance of handlerType
 		// set handler's socket to s
-		// RequestHandler handler = null;
-        return null;
+		// return handler
+        return handler;
     }
     
 
