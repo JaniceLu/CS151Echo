@@ -8,6 +8,7 @@ public class RequestHandler extends Correspondent implements Runnable {
 	}
 
 	public RequestHandler() {
+		
 	}
 
 	// override in a subclass:
