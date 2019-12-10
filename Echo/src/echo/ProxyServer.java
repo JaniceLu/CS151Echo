@@ -3,22 +3,18 @@ package echo;
 import java.net.Socket;
 
 public class ProxyServer extends Server {
-    private String peerHost;
-    private int peerPort;
+    String peerHost;
+    int peerPort;
 
-    public ProxyServer(int port, int peerPort, String peerHost, String host, String handlerType) {
-        super(port, handlerType);
-        this.peerPort = peerPort;
+    public ProxyServer(int myPort, String service, int peerPort, String peerHost) {
+        super(myPort, service);
         this.peerHost = peerHost;
+        this.peerPort = peerPort;
     }
 
     public RequestHandler makeHandler(Socket s) {
         RequestHandler handler = super.makeHandler(s);
-        try {
-            ((ProxyHandler) handler).initPeer(peerHost, peerPort);
-        } catch(Exception e) {
-            System.err.println(e.getMessage());
-        }
+        ((ProxyHandler) handler).initPeer(peerHost, peerPort);
 		// handler = a new instance of handlerType
 		// set handler's socket to s
 		// return handler
@@ -26,22 +22,17 @@ public class ProxyServer extends Server {
     }
 
     public static void main(String[] args) {
-        String host = "111";
-        String pHost = "111";
-        int port = 0;
-        int pPort = 0;
-        String service = "echo.placeholder";
+        String peerHost = "localhost";
+        int port = 5555;
+        int peerPort = 6666;
+        String service = "echo.ProxyHandler";
 
-        if ( 6 == args.length) { 
-            service = args[1];
-            pPort = Integer.parseInt(args[2]);
-            port = Integer.parseInt(args[3]);
-            pHost = args[4];
-            host = args[5];
-        } else {
-            System.err.println("Not enough arguments");
-        }
-        Server server = new ProxyServer(port, pPort, pHost, host, service);
+        if (1 <= args.length) { service = args[0]; }
+        if (2 <= args.length) { peerPort = Integer.parseInt(args[1]); }
+        if (3 <= args.length) { port = Integer.parseInt(args[2]); }
+        if (4 <= args.length) { peerHost = args[3]; }
+
+        Server server = new ProxyServer(port, service, peerPort, peerHost);
         server.listen();
     }
 
